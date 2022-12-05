@@ -3,9 +3,14 @@ require 'minitest'
 
 class Elf
   attr_reader :number, :calorie_count
+
   def initialize(number, calorie_count)
     @number = number
     @calorie_count = calorie_count
+  end
+
+  def <=>(other)
+    @calorie_count <=> other.calorie_count
   end
 end
 
@@ -14,7 +19,7 @@ class ElfCalorieProcessor
     @io = io
 
     # initial state for processing
-    @winning_elf = Elf.new(0, 0)
+    @elves = []
     @elf_counter = 1
     @running_calorie_counter = 0
   end
@@ -24,21 +29,22 @@ class ElfCalorieProcessor
       if line.to_i > 0 # number
         @running_calorie_counter = @running_calorie_counter + line.to_i
       else # empty line
-        process_elf
+        @elves << process_elf
       end
     end
-    process_elf # In case there's one at the end with no newline
-    [@winning_elf.number, @winning_elf.calorie_count]
+    @elves << process_elf # In case there's one at the end with no newline
+    @elves.sort!
+    [@elves[-1].number, @elves[-1].calorie_count]
   end
 
   private
 
   def process_elf
-    if @running_calorie_counter > @winning_elf.calorie_count
-      @winning_elf = Elf.new(@elf_counter, @running_calorie_counter)
-    end
+    elf = Elf.new(@elf_counter, @running_calorie_counter)
     @running_calorie_counter = 0
     @elf_counter += 1
+
+    elf
   end
 end
 
