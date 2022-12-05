@@ -48,17 +48,6 @@ class ElfCalorieProcessor
 end
 
 class ElfCalorieProcessorTest < MiniTest::Test
-  def test_line_output
-    io = StringIO.new <<~STRING
-      100
-      200
-      300
-
-    STRING
-    elves = ElfCalorieProcessor.new(io).process
-    assert_equal [1, 600], [elves[-1].number, elves[-1].calorie_count]
-  end
-
   def test_no_newline_at_end
     io = StringIO.new <<~STRING
       100
@@ -98,13 +87,16 @@ class ElfCalorieProcessorTest < MiniTest::Test
     STRING
     elves = ElfCalorieProcessor.new(io).process
     assert_equal [4, 24_000], [elves[-1].number, elves[-1].calorie_count]
+    assert_equal [3, 11_000], [elves[-2].number, elves[-2].calorie_count]
   end
 end
 
 if ARGV[0] == 'test'
   MiniTest.run
 else
-  result_elf = ElfCalorieProcessor.new(ARGF).process
+  elves = ElfCalorieProcessor.new(ARGF).process
 
-  puts "Elf #{result_elf[0]} has the most calories: #{result_elf[1]}"
+  puts "Elf #{elves[-1].number} has the most calories: #{elves[-1].calorie_count}"
+  total = elves[-1].calorie_count + elves[-2].calorie_count + elves[-3].calorie_count
+  puts "The top three have #{total} calories"
 end
