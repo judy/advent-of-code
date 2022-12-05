@@ -34,7 +34,6 @@ class ElfCalorieProcessor
     end
     @elves << process_elf # In case there's one at the end with no newline
     @elves.sort!
-    [@elves[-1].number, @elves[-1].calorie_count]
   end
 
   private
@@ -56,8 +55,8 @@ class ElfCalorieProcessorTest < MiniTest::Test
       300
 
     STRING
-    processor = ElfCalorieProcessor.new(io).process
-    assert_equal [1, 600], processor
+    elves = ElfCalorieProcessor.new(io).process
+    assert_equal [1, 600], [elves[-1].number, elves[-1].calorie_count]
   end
 
   def test_no_newline_at_end
@@ -66,8 +65,8 @@ class ElfCalorieProcessorTest < MiniTest::Test
       200
       300
     STRING
-    processor = ElfCalorieProcessor.new(io).process
-    assert_equal [1, 600], processor
+    elves = ElfCalorieProcessor.new(io).process
+    assert_equal [1, 600], [elves[-1].number, elves[-1].calorie_count]
   end
 
   def test_two_elves
@@ -76,8 +75,8 @@ class ElfCalorieProcessorTest < MiniTest::Test
 
       200
     STRING
-    processor = ElfCalorieProcessor.new(io).process
-    assert_equal [1, 300], processor
+    elves = ElfCalorieProcessor.new(io).process
+    assert_equal [1, 300], [elves[-1].number, elves[-1].calorie_count]
   end
 
   def test_actual_data
@@ -97,8 +96,8 @@ class ElfCalorieProcessorTest < MiniTest::Test
 
       10000
     STRING
-    processor = ElfCalorieProcessor.new(io).process
-    assert_equal [4, 24_000], processor
+    elves = ElfCalorieProcessor.new(io).process
+    assert_equal [4, 24_000], [elves[-1].number, elves[-1].calorie_count]
   end
 end
 
