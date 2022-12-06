@@ -2,6 +2,19 @@
 require 'minitest'
 
 class ElfRPS
+  SCENARIOS = {
+    # A Rock, B Paper, C Scissors
+    # X lose, Y draw, Z win
+    "B X" => 1, # rock + 0 lose
+    "C X" => 2, # paper + 0 lose
+    "A X" => 3, # scissors + 0 lose
+    "A Y" => 4, # rock + 3 draw
+    "B Y" => 5, # paper + 3 draw
+    "C Y" => 6, # scissors + 3 draw
+    "C Z" => 7, # rock + 6 win
+    "A Z" => 8, # paper + 6 win
+    "B Z" => 9  # scissors + 6 win
+  }
   def initialize(io)
     @io = io
     @score = 0
@@ -9,39 +22,7 @@ class ElfRPS
 
   def process
     @io.each_line do |line|
-      elf, me = line.split(" ")
-      case me
-      when "X" # rock
-        @score += 1
-        case elf
-        when "A" # rock
-          @score += 3
-        when "B" # paper
-          @score += 0
-        when "C" # scissors
-          @score += 6
-        end
-      when "Y" # paper
-        @score += 2
-        case elf
-        when "A" # rock
-          @score += 6
-        when "B" # paper
-          @score += 3
-        when "C" # scissors
-          @score += 0
-        end
-      when "Z" # scissors
-        @score += 3
-        case elf
-        when "A" # rock
-          @score += 0
-        when "B" # paper
-          @score += 6
-        when "C" # scissors
-          @score += 3
-        end
-      end
+      @score += SCENARIOS[line.chomp]
     end
 
     @score
@@ -56,7 +37,7 @@ class ElfRPSTest < MiniTest::Test
       B X
       C Z
     STRING
-    assert_equal 15, ElfRPS.new(io).process
+    assert_equal 12, ElfRPS.new(io).process
   end
 end
 
