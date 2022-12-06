@@ -112,7 +112,12 @@ class ChiefMate
 
   def process_transport_document
     ship_diagram, verbal_commands = transport_document.read.split("\n\n")
+
     ship = Ship.new_ship_from_diagram(ship_diagram)
+    verbal_commands.split("\n").each do |command|
+      ship.move_crates_by_verbal_command(command)
+    end
+    ship
   end
 end
 
@@ -130,15 +135,10 @@ class ChiefMateTest < MiniTest::Test
       move 1 from 1 to 2
     STRING
     expected = [
-      ['Z', 'N'],
-      ['M', 'C', 'D'],
-      ['P']
+      ['C'],
+      ['M'],
+      ['P', 'D', 'N', 'Z']
     ]
-    # expected_transformed_stacks = [
-    #   ['C'],
-    #   ['M'],
-    #   ['P', 'D', 'N', 'Z']
-    # ]
     ship = ChiefMate.new(io).process_transport_document
     assert_equal expected, ship.stacks
   end
