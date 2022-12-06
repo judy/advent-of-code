@@ -160,5 +160,5 @@ end
 if ARGV[0] == 'test'
   MiniTest.run
 else
-  raise 'no input handler yet'
+  puts ChiefMate.new(ARGF).process_transport_document.crate_tops.join('')
 end
