@@ -83,20 +83,10 @@ class ChiefMate
 end
 
 class ShipTest < MiniTest::Test
-  def test_move_crates
-    ship = Ship.new([['A'], ['B', 'C'], ['D']])
-    ship.move_crates(1, 1, 2)
-    assert_equal [[], ['B', 'C', 'A'], ['D']], ship.stacks
-    ship.move_crates(2, 2, 3)
-    assert_equal [[], ['B'], ['D', 'A', 'C']], ship.stacks
-  end
+  attr_accessor :ship
 
-  def test_move_crates_by_verbal_command
-    ship = Ship.new([['A'], ['B', 'C'], ['D']])
-    ship.move_crates_by_verbal_command("move 1 from 1 to 2")
-    assert_equal [[], ['B', 'C', 'A'], ['D']], ship.stacks
-    ship.move_crates_by_verbal_command("move 2 from 2 to 3")
-    assert_equal [[], ['B'], ['D', 'A', 'C']], ship.stacks
+  def setup
+    @ship = Ship.new([['A'], ['B', 'C'], ['D']])
   end
 
   def test_new_ship_from_diagram
@@ -119,6 +109,20 @@ class ShipTest < MiniTest::Test
     array_with_spaces = ['Z', 'N', " "]
     assert_equal ['Z', 'N'], Ship.clear_empties_from_end_of_array(array_with_nils)
     assert_equal ['Z', 'N'], Ship.clear_empties_from_end_of_array(array_with_spaces)
+  end
+
+  def test_move_crates
+    ship.move_crates(1, 1, 2)
+    assert_equal [[], ['B', 'C', 'A'], ['D']], ship.stacks
+    ship.move_crates(2, 2, 3)
+    assert_equal [[], ['B'], ['D', 'A', 'C']], ship.stacks
+  end
+
+  def test_move_crates_by_verbal_command
+    ship.move_crates_by_verbal_command("move 1 from 1 to 2")
+    assert_equal [[], ['B', 'C', 'A'], ['D']], ship.stacks
+    ship.move_crates_by_verbal_command("move 2 from 2 to 3")
+    assert_equal [[], ['B'], ['D', 'A', 'C']], ship.stacks
   end
 end
 
