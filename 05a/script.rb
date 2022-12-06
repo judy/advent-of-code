@@ -32,11 +32,12 @@ class Ship
     max_length = lines.map(&:length).max
     lines = lines.map{|e| e.values_at(0...max_length)}.transpose.map(&:reverse)
 
-    stacks = {}
-    lines.each do |line|
+    stacks = []
+    lines.each_with_index do |line, index|
       next if line[0] == " " || line[0] == nil # skip up any "empty" arrays, eg. [nil, " ", " "]
-      stack_name = line.shift
-      stacks[stack_name] = clear_empties_from_end_of_array(line)
+
+      line.shift # clear number from front
+      stacks << clear_empties_from_end_of_array(line)
     end
 
     new(stacks)
@@ -58,11 +59,11 @@ class ShipTest < MiniTest::Test
       [Z] [M] [P]
        1   2   3
     STRING
-    expected = {
-      "1" => ['Z', 'N'],
-      "2" => ['M', 'C', 'D'],
-      "3" => ['P']
-    }
+    expected = [
+      ['Z', 'N'],
+      ['M', 'C', 'D'],
+      ['P']
+    ]
     assert_equal expected, Ship.new_ship_from_diagram(ship_diagram).stacks
   end
 
