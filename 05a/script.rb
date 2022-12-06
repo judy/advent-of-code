@@ -15,6 +15,11 @@ class Ship
     count.times { stacks[to].push(stacks[from].pop) }
   end
 
+  def move_crates_by_verbal_command(command)
+    m = /move (?<count>\d+) from (?<from>\d+) to (?<to>\d+)/.match(command)
+    move_crates(m[:count].to_i, m[:from].to_i, m[:to].to_i)
+  end
+
   # Takes a ship diagram in the form of:
   #
   #       [D]
@@ -65,6 +70,14 @@ class ShipTest < MiniTest::Test
     ship.move_crates(1, 1, 2)
     assert_equal [[], ['B', 'C', 'A'], ['D']], ship.stacks
     ship.move_crates(2, 2, 3)
+    assert_equal [[], ['B'], ['D', 'A', 'C']], ship.stacks
+  end
+
+  def test_move_crates_by_verbal_command
+    ship = Ship.new([['A'], ['B', 'C'], ['D']])
+    ship.move_crates_by_verbal_command("move 1 from 1 to 2")
+    assert_equal [[], ['B', 'C', 'A'], ['D']], ship.stacks
+    ship.move_crates_by_verbal_command("move 2 from 2 to 3")
     assert_equal [[], ['B'], ['D', 'A', 'C']], ship.stacks
   end
 
