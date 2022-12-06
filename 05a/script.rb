@@ -3,22 +3,6 @@ require 'minitest'
 
 class Ship
   attr_accessor :stacks
-  def initialize(stacks)
-    @stacks = stacks
-  end
-
-  def move_crates(count, from, to)
-    # get rid of those nasty off-by-one errors before they happen...
-    from -= 1
-    to -= 1
-    # Move each crate one at a time
-    count.times { stacks[to].push(stacks[from].pop) }
-  end
-
-  def move_crates_by_verbal_command(command)
-    m = /move (?<count>\d+) from (?<from>\d+) to (?<to>\d+)/.match(command)
-    move_crates(m[:count].to_i, m[:from].to_i, m[:to].to_i)
-  end
 
   # Takes a ship diagram in the form of:
   #
@@ -62,6 +46,40 @@ class Ship
     end
     array
   end
+
+  def initialize(stacks)
+    @stacks = stacks
+  end
+
+  def move_crates(count, from, to)
+    # get rid of those nasty off-by-one errors before they happen...
+    from -= 1
+    to -= 1
+    # Move each crate one at a time
+    count.times { stacks[to].push(stacks[from].pop) }
+  end
+
+  def move_crates_by_verbal_command(command)
+    m = /move (?<count>\d+) from (?<from>\d+) to (?<to>\d+)/.match(command)
+    move_crates(m[:count].to_i, m[:from].to_i, m[:to].to_i)
+  end
+end
+
+class ChiefMate
+  attr_reader :transport_document
+  def initialize(transport_document)
+    @transport_document = transport_document
+  end
+
+  def process_transport_document
+    ship_diagram, verbal_commands = transport_document.read.split("\n\n")
+
+    ship = Ship.new_ship_from_diagram(ship_diagram)
+    verbal_commands.split("\n").each do |command|
+      ship.move_crates_by_verbal_command(command)
+    end
+    ship
+  end
 end
 
 class ShipTest < MiniTest::Test
@@ -101,23 +119,6 @@ class ShipTest < MiniTest::Test
     array_with_spaces = ['Z', 'N', " "]
     assert_equal ['Z', 'N'], Ship.clear_empties_from_end_of_array(array_with_nils)
     assert_equal ['Z', 'N'], Ship.clear_empties_from_end_of_array(array_with_spaces)
-  end
-end
-
-class ChiefMate
-  attr_reader :transport_document
-  def initialize(transport_document)
-    @transport_document = transport_document
-  end
-
-  def process_transport_document
-    ship_diagram, verbal_commands = transport_document.read.split("\n\n")
-
-    ship = Ship.new_ship_from_diagram(ship_diagram)
-    verbal_commands.split("\n").each do |command|
-      ship.move_crates_by_verbal_command(command)
-    end
-    ship
   end
 end
 
