@@ -63,6 +63,10 @@ class Ship
     m = /move (?<count>\d+) from (?<from>\d+) to (?<to>\d+)/.match(command)
     move_crates(m[:count].to_i, m[:from].to_i, m[:to].to_i)
   end
+
+  def crate_tops
+    stacks.map(&:last)
+  end
 end
 
 class ChiefMate
@@ -123,6 +127,10 @@ class ShipTest < MiniTest::Test
     assert_equal [[], ['B', 'C', 'A'], ['D']], ship.stacks
     ship.move_crates_by_verbal_command("move 2 from 2 to 3")
     assert_equal [[], ['B'], ['D', 'A', 'C']], ship.stacks
+  end
+
+  def test_crate_tops_should_tell_us_whats_at_the_top_of_each_stack_sequentially
+    assert_equal ['A', 'C', 'D'], ship.crate_tops
   end
 end
 
