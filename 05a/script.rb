@@ -7,6 +7,14 @@ class Ship
     @stacks = stacks
   end
 
+  def move_crates(count, from, to)
+    # get rid of those nasty off-by-one errors before they happen...
+    from -= 1
+    to -= 1
+    # Move each crate one at a time
+    count.times { stacks[to].push(stacks[from].pop) }
+  end
+
   # Takes a ship diagram in the form of:
   #
   #       [D]
@@ -52,6 +60,14 @@ class Ship
 end
 
 class ShipTest < MiniTest::Test
+  def test_move_crates
+    ship = Ship.new([['A'], ['B', 'C'], ['D']])
+    ship.move_crates(1, 1, 2)
+    assert_equal [[], ['B', 'C', 'A'], ['D']], ship.stacks
+    ship.move_crates(2, 2, 3)
+    assert_equal [[], ['B'], ['D', 'A', 'C']], ship.stacks
+  end
+
   def test_new_ship_from_diagram
     ship_diagram = <<~STRING
           [D]
