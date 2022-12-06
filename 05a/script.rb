@@ -104,6 +104,46 @@ class ShipTest < MiniTest::Test
   end
 end
 
+class ChiefMate
+  attr_reader :transport_document
+  def initialize(transport_document)
+    @transport_document = transport_document
+  end
+
+  def process_transport_document
+    ship_diagram, verbal_commands = transport_document.read.split("\n\n")
+    ship = Ship.new_ship_from_diagram(ship_diagram)
+  end
+end
+
+class ChiefMateTest < MiniTest::Test
+  def test_processing_of_transport_document
+    io = StringIO.new <<~STRING
+          [D]
+      [N] [C]
+      [Z] [M] [P]
+       1   2   3
+
+      move 1 from 2 to 1
+      move 3 from 1 to 3
+      move 2 from 2 to 1
+      move 1 from 1 to 2
+    STRING
+    expected = [
+      ['Z', 'N'],
+      ['M', 'C', 'D'],
+      ['P']
+    ]
+    # expected_transformed_stacks = [
+    #   ['C'],
+    #   ['M'],
+    #   ['P', 'D', 'N', 'Z']
+    # ]
+    ship = ChiefMate.new(io).process_transport_document
+    assert_equal expected, ship.stacks
+  end
+end
+
 if ARGV[0] == 'test'
   MiniTest.run
 else
