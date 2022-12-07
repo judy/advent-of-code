@@ -13,7 +13,9 @@ def build_filesystem(io)
     in ['$', 'cd', '..']
       folder_stack.pop
     in ['$', 'cd', String => folder]
-      folder_stack.push folder
+      folder = "root" if folder == '/'
+      full_path = [folder_stack.last, folder].compact.join('/')
+      folder_stack.push full_path
     in ['$', 'ls']
       # noop
     in ['dir', String => folder]
@@ -26,12 +28,20 @@ def build_filesystem(io)
       raise "unknown line: #{line}"
     end
   end
-
+  # puts folder_stack.inspect
+  # puts folder_sizes.inspect
   folder_sizes
 end
 
 def sum_of_all_folders_below_100_000(fs)
-  fs.select { |k,v| v < 100_000 }.values.sum
+  fs.select { |_,v| v < 100_000 }.values.sum
+end
+
+def smallest_folder_deletable_to_free_30_000_000(fs)
+  smallest_folder_min = 70_000_000 - 30_000_000 # 40_000_000
+  uneligible_folder_size = fs["root"] - smallest_folder_min
+  eligible_folders = fs.reject { |_,v| v < uneligible_folder_size }
+  eligible_folders.values.min
 end
 
 class Test < MiniTest::Test
@@ -65,13 +75,20 @@ class Test < MiniTest::Test
   end
 
   def test_sum_of_all_folders_below_100_000
-    fs = { a: 50_000, b: 90_000, c: 200_000 }
-    assert_equal 50_000 + 90_000, sum_of_all_folders_below_100_000(fs)
+    fs = { "root" => 48381165, e: 584, a: 94853, d: 24933642 }
+    assert_equal 95437, sum_of_all_folders_below_100_000(fs)
+  end
+
+  def test_smallest_folder_deletable_to_free_30_000_000
+    fs = { "root" => 48381165, e: 584, a: 94853, d: 24933642 }
+    assert_equal 24933642, smallest_folder_deletable_to_free_30_000_000(fs)
   end
 end
 
 if ARGV[0] == 'test'
   MiniTest.run
 else
-  puts sum_of_all_folders_below_100_000(build_filesystem(ARGF))
+  fs = build_filesystem(ARGF)
+  puts "Solution 1: #{sum_of_all_folders_below_100_000(fs)}"
+  puts "Solution 2: #{smallest_folder_deletable_to_free_30_000_000(fs)}"
 end
