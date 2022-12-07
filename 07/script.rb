@@ -35,7 +35,7 @@ def sum_of_all_folders_below_100_000(fs)
 end
 
 class Test < MiniTest::Test
-  def test_cd
+  def test_build_filesystem
     io = StringIO.new <<~STRING
       $ cd /
       $ ls
@@ -64,40 +64,14 @@ class Test < MiniTest::Test
     assert_equal 95437, sum_of_all_folders_below_100_000(build_filesystem(io))
   end
 
-  def test_example
-    skip
-    io = StringIO.new <<~STRING
-      $ cd /
-      $ ls
-      dir a
-      14848514 b.txt
-      8504156 c.dat
-      dir d
-      $ cd a
-      $ ls
-      dir e
-      29116 f
-      2557 g
-      62596 h.lst
-      $ cd e
-      $ ls
-      584 i
-      $ cd ..
-      $ cd ..
-      $ cd d
-      $ ls
-      4060174 j
-      8033020 d.log
-      5626152 d.ext
-      7214296 k
-    STRING
-    expected = 95437
+  def test_sum_of_all_folders_below_100_000
+    fs = { a: 50_000, b: 90_000, c: 200_000 }
+    assert_equal 50_000 + 90_000, sum_of_all_folders_below_100_000(fs)
   end
 end
 
 if ARGV[0] == 'test'
   MiniTest.run
 else
-  raise "unused"
-  # puts Solution.new(ARGF).solve
+  puts sum_of_all_folders_below_100_000(build_filesystem(ARGF))
 end
