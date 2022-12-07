@@ -56,7 +56,7 @@ class Ship
     from -= 1
     to -= 1
     # Move each crate one at a time
-    count.times { stacks[to].push(stacks[from].pop) }
+    stacks[to].push(*stacks[from].pop(count))
   end
 
   def move_crates_by_verbal_command(command)
@@ -119,14 +119,14 @@ class ShipTest < MiniTest::Test
     ship.move_crates(1, 1, 2)
     assert_equal [[], ['B', 'C', 'A'], ['D']], ship.stacks
     ship.move_crates(2, 2, 3)
-    assert_equal [[], ['B'], ['D', 'A', 'C']], ship.stacks
+    assert_equal [[], ['B'], ['D', 'C', 'A']], ship.stacks
   end
 
   def test_move_crates_by_verbal_command
     ship.move_crates_by_verbal_command("move 1 from 1 to 2")
     assert_equal [[], ['B', 'C', 'A'], ['D']], ship.stacks
     ship.move_crates_by_verbal_command("move 2 from 2 to 3")
-    assert_equal [[], ['B'], ['D', 'A', 'C']], ship.stacks
+    assert_equal [[], ['B'], ['D', 'C', 'A']], ship.stacks
   end
 
   def test_crate_tops_should_tell_us_whats_at_the_top_of_each_stack_sequentially
@@ -148,9 +148,9 @@ class ChiefMateTest < MiniTest::Test
       move 1 from 1 to 2
     STRING
     expected = [
-      ['C'],
       ['M'],
-      ['P', 'D', 'N', 'Z']
+      ['C'],
+      ['P', 'Z', 'N', 'D']
     ]
     ship = ChiefMate.new(io).process_transport_document
     assert_equal expected, ship.stacks
