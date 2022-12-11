@@ -2,13 +2,15 @@
 require 'minitest'
 
 class VisibleTrees
-  attr_accessor :forest
+  attr_accessor :forest, :visible_trees
   def initialize(io)
-    @forest = process_forest(io)
+    @forest, @visible_trees = process_forest(io)
   end
 
   def process_forest(io)
-    io.readlines(chomp: true).map { _1.chars.map(&:to_i) }
+    forest = io.readlines(chomp: true).map { _1.chars.map(&:to_i) }
+    visible_trees = Array.new(forest.size) { Array.new(forest[0].size, false) }
+    [forest, visible_trees]
   end
 end
 
@@ -19,6 +21,14 @@ class Test < MiniTest::Test
       34
     STRING
     assert_equal [[1, 2], [3, 4]], VisibleTrees.new(io).forest
+  end
+
+  def test_starting_visible_trees
+    io = StringIO.new <<~STRING
+      123
+      456
+    STRING
+    assert_equal [[false, false, false], [false, false, false]], VisibleTrees.new(io).visible_trees
   end
 
   def test_example
