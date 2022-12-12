@@ -19,6 +19,10 @@ class Position
   def to_s
     "(#{x}, #{y})"
   end
+
+  def ==(other)
+    x == other.x && y == other.y
+  end
 end
 
 class Worm
@@ -58,12 +62,10 @@ class Worm
 
     TTYOUTPUT.print CURSOR.move_to(0, 0)
     # print CURSOR.restore
-    sleep 0.2
+    # sleep 0.1
   end
 
   def move(direction)
-    former_head_position = Position.new(head.x, head.y)
-
     case direction
     when 'R'
       head.x += 1
@@ -77,9 +79,9 @@ class Worm
       raise "unknown direction #{direction}"
     end
 
-    move_rest_of_tail(former_head_position)
+    move_rest_of_tail
 
-    draw
+    # draw
 
     self
   end
@@ -88,13 +90,13 @@ class Worm
     sections.last
   end
 
-  def move_rest_of_tail(moved_position)
-    new_position = head
-    sections.each_with_index do |section, i|
+  def move_rest_of_tail
+    moved_position = head
+    sections.each_with_index do |_, i|
       # puts "new_position: #{new_position} moved_position: #{moved_position} section: #{section}"
-      if distance(new_position, section) > 1
-        sections[i] = Position.new(moved_position.x, moved_position.y)
-        moved_position = section
+      if distance(moved_position, sections[i]) > 1
+        sections[i] = move_section(sections[i], moved_position)
+        moved_position = sections[i]
       else
         break
       end
@@ -102,6 +104,14 @@ class Worm
 
     @tail_history[tail.x.to_s] ||= []
     @tail_history[tail.x.to_s] = @tail_history[tail.x.to_s] | [tail.y]
+  end
+
+  def move_section(section, new_position)
+    delta_x = (new_position.x - section.x) / 2.0
+    delta_x = delta_x > 0 ? delta_x.ceil : delta_x.floor # round away from zero
+    delta_y = (new_position.y - section.y) / 2.0
+    delta_y = delta_y > 0 ? delta_y.ceil : delta_y.floor # round away from zero
+    Position.new(section.x + delta_x, section.y + delta_y)
   end
 
   def tail_positions_visited
@@ -119,9 +129,6 @@ class Solver
 
   def solve
     io.each_with_index do |line, i|
-      # puts line
-      # puts worm.tail_positions_visited
-      # print CURSOR.move(0, 0)
       direction, distance = line.split(' ')
       distance.to_i.times do
         worm.move(direction)
@@ -133,8 +140,13 @@ class Solver
 end
 
 class WormTest < MiniTest::Test
+  attr_accessor :worm
+
+  def setup
+    @worm = Worm.new
+  end
+
   def test_new_worm
-    worm = Worm.new
     assert_equal 0, worm.head.x
     assert_equal 0, worm.head.y
     assert_equal 0, worm.tail.x
@@ -155,19 +167,25 @@ class WormTest < MiniTest::Test
   end
 
   def test_move_tail
-    worm = Worm.new
-    worm.move('R')
-    assert_equal [0, 0], [worm.tail.x, worm.tail.y]
-    worm.move('R')
-    assert_equal [1, 0], [worm.tail.x, worm.tail.y]
-    worm.move('U')
-    assert_equal [1, 0], [worm.tail.x, worm.tail.y]
+    worm = Worm.new(hx: 3, hy: 4)
+    worm.sections = [Position.new(4, 3), Position.new(4, 2), Position.new(3, 2)]
+    worm.move('L')
+    assert_equal [2, 4], [worm.head.x, worm.head.y]
+    assert_equal [3, 4], [worm.sections[0].x, worm.sections[0].y]
+    assert_equal [3, 3], [worm.sections[1].x, worm.sections[1].y]
   end
 
   def test_move_tail_diagonal
     worm = Worm.new(hx: 1, hy: 1)
     worm.move('R')
     assert_equal [1, 1], [worm.tail.x, worm.tail.y]
+  end
+
+  def test_move_section
+    assert_equal Position.new(1,0), worm.move_section(Position.new(0, 0), Position.new(2, 0))
+    assert_equal Position.new(0,1), worm.move_section(Position.new(0, 0), Position.new(0, 2))
+    assert_equal Position.new(1,1), worm.move_section(Position.new(0, 0), Position.new(2, 1))
+    assert_equal Position.new(1,1), worm.move_section(Position.new(0, 0), Position.new(1, 2))
   end
 end
 
@@ -243,17 +261,6 @@ class SolverTest < MiniTest::Test
     assert_equal expected_positions_visited, worm.tail_positions_visited
   end
 
-  focus
-  def test_larger_example
-    io = StringIO.new <<~STRING
-      R 5
-      U 8
-    STRING
-    expected_positions_visited = 36
-    worm = Solver.new(io, sections: 9).solve.worm
-    assert_equal expected_positions_visited, worm.tail_positions_visited
-  end
-
   def test_largest_example
     io = StringIO.new <<~STRING
       R 5
@@ -276,8 +283,5 @@ if ARGV[0] == 'test'
   MiniTest.run
 else
   worm = Solver.new(ARGF, sections: 9).solve.worm
-  # puts worm.tail_history.inspect
   puts worm.tail_positions_visited
 end
-
-# it's not 5890, too high
