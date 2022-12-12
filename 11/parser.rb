@@ -5,6 +5,12 @@ require 'pry'
 require_relative 'monkey'
 
 class MonkeyParser
+  def self.parse_tribe(io)
+    io.read.split("\n\n").map do |monkey_string|
+      MonkeyParser.new(StringIO.new(monkey_string)).parse
+    end
+  end
+
   def initialize(io)
     @io = io
   end
@@ -42,6 +48,39 @@ class MonkeyParserTest < MiniTest::Test
     assert_equal 23, monkey.divisible_by
     assert_equal 2, monkey.if_true
     assert_equal 3, monkey.if_false
+  end
+
+  def test_parsing_tribe
+    io = StringIO.new <<~STRING
+      Monkey 0:
+        Starting items: 79, 98
+        Operation: new = old * 19
+        Test: divisible by 23
+          If true: throw to monkey 2
+          If false: throw to monkey 3
+
+      Monkey 1:
+        Starting items: 54, 65, 75, 74
+        Operation: new = old + 6
+        Test: divisible by 19
+          If true: throw to monkey 2
+          If false: throw to monkey 0
+    STRING
+    monkeys = MonkeyParser.parse_tribe(io)
+
+    assert_equal 0, monkeys[0].number
+    assert_equal [79, 98], monkeys[0].items
+    assert_equal "old * 19", monkeys[0].operation
+    assert_equal 23, monkeys[0].divisible_by
+    assert_equal 2, monkeys[0].if_true
+    assert_equal 3, monkeys[0].if_false
+
+    assert_equal 1, monkeys[1].number
+    assert_equal [54, 65, 75, 74], monkeys[1].items
+    assert_equal "old + 6", monkeys[1].operation
+    assert_equal 19, monkeys[1].divisible_by
+    assert_equal 2, monkeys[1].if_true
+    assert_equal 0, monkeys[1].if_false
   end
 end
 
