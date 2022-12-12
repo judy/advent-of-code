@@ -1,23 +1,67 @@
 #!/usr/bin/env ruby
 require 'minitest'
+require 'minitest/focus'
+require 'tty-cursor'
 
-class Worm
-  attr_accessor :head, :tail, :tail_history
+CURSOR = TTY::Cursor
+TTYOUTPUT = File.open('/dev/ttys002', 'w+')
+print CURSOR.move_to(0, 0)
+print CURSOR.save
 
-  Position = Struct.new('Position', :x, :y)
-
-  def initialize(hx: 0, hy: 0, tx: 0, ty: 0)
-    @head = Position.new(hx, hy)
-    @tail = Position.new(tx, ty)
-    @tail_history = { 0 => [0] }
+class Position
+  attr_accessor :x, :y
+  def initialize(x = 0, y = 0)
+    @x = x
+    @y = y
   end
 
-  def distance
-    [(head.x - tail.x).abs, (head.y - tail.y).abs].max
+  def to_s
+    "(#{x}, #{y})"
+  end
+end
+
+class Worm
+  attr_accessor :head, :sections, :tail_history
+
+  def initialize(hx: 0, hy: 0, sections: 1)
+    @head = Position.new(hx, hy)
+    @sections = Array.new(sections, Position.new(0, 0))
+    @tail_history = { "0" => [0] }
+  end
+
+  def distance(a = head, b = tail)
+    [(a.x - b.x).abs, (a.y - b.y).abs].max
+  end
+
+  def draw
+    # print CURSOR.save
+    TTYOUTPUT.print CURSOR.clear_screen
+
+    # print history
+    @tail_history.each do |x, ys|
+      ys.each do |y|
+        TTYOUTPUT.print CURSOR.move_to(x.to_i+100, y+15)
+        TTYOUTPUT.print '.'
+      end
+    end
+
+    # print sections
+    sections.reverse.each_with_index do |section, i|
+      TTYOUTPUT.print CURSOR.move_to(section.x+100, section.y+15)
+      TTYOUTPUT.print i == 0 ? 0 : 10 - i
+    end
+
+    # print head
+    TTYOUTPUT.print CURSOR.move_to(head.x+100, head.y+15)
+    TTYOUTPUT.print 'X'
+
+    TTYOUTPUT.print CURSOR.move_to(0, 0)
+    # print CURSOR.restore
+    sleep 0.2
   end
 
   def move(direction)
-    former_head_position = [head.x, head.y]
+    former_head_position = Position.new(head.x, head.y)
 
     case direction
     when 'R'
@@ -25,20 +69,38 @@ class Worm
     when 'L'
       head.x -= 1
     when 'U'
-      head.y += 1
+      head.y -= 1 # MIRRORED! Output should be the same!
     when 'D'
-      head.y -= 1
+      head.y += 1 # MIRRORED! Output should be the same!
     else
       raise "unknown direction #{direction}"
     end
 
-    if distance > 1
-      tail.x, tail.y = former_head_position
-      @tail_history[tail.x] ||= []
-      @tail_history[tail.x] = @tail_history[tail.x] | [tail.y]
-    end
+    move_rest_of_tail(former_head_position)
+
+    draw
 
     self
+  end
+
+  def tail
+    sections.last
+  end
+
+  def move_rest_of_tail(moved_position)
+    new_position = head
+    sections.each_with_index do |section, i|
+      # puts "new_position: #{new_position} moved_position: #{moved_position} section: #{section}"
+      if distance(new_position, section) > 1
+        sections[i] = Position.new(moved_position.x, moved_position.y)
+        moved_position = section
+      else
+        break
+      end
+    end
+
+    @tail_history[tail.x.to_s] ||= []
+    @tail_history[tail.x.to_s] = @tail_history[tail.x.to_s] | [tail.y]
   end
 
   def tail_positions_visited
@@ -49,13 +111,16 @@ end
 class Solver
   attr_accessor :io, :worm
 
-  def initialize(io)
+  def initialize(io, sections: 1)
     @io = io
-    @worm = Worm.new
+    @worm = Worm.new(sections: sections)
   end
 
   def solve
-    io.each do |line|
+    io.each_with_index do |line, i|
+      # puts line
+      # puts worm.tail_positions_visited
+      # print CURSOR.move(0, 0)
       direction, distance = line.split(' ')
       distance.to_i.times do
         worm.move(direction)
@@ -93,6 +158,8 @@ class WormTest < MiniTest::Test
     worm.move('R')
     assert_equal [0, 0], [worm.tail.x, worm.tail.y]
     worm.move('R')
+    assert_equal [1, 0], [worm.tail.x, worm.tail.y]
+    worm.move('U')
     assert_equal [1, 0], [worm.tail.x, worm.tail.y]
   end
 
@@ -137,7 +204,7 @@ class SolverTest < MiniTest::Test
       U 2
     STRING
     worm = Solver.new(io).solve.worm
-    expected = {0=>[0], 1=>[0], 2=>[1]}
+    expected = {'0'=>[0], '1'=>[0], '2'=>[1]}
     assert_equal expected, worm.tail_history
   end
 
@@ -150,8 +217,16 @@ class SolverTest < MiniTest::Test
     assert_equal 3, worm.tail_positions_visited
   end
 
+  def test_tail_positions_visited_with_multiple_sections
+    io = StringIO.new <<~STRING
+      R 2
+      U 2
+    STRING
+    worm = Solver.new(io, sections: 2).solve.worm
+    assert_equal 2, worm.tail_positions_visited
+  end
+
   def test_example
-    skip
     io = StringIO.new <<~STRING
       R 4
       U 4
@@ -166,10 +241,42 @@ class SolverTest < MiniTest::Test
     worm = Solver.new(io).solve.worm
     assert_equal expected_positions_visited, worm.tail_positions_visited
   end
+
+  focus
+  def test_larger_example
+    io = StringIO.new <<~STRING
+      R 5
+      U 8
+    STRING
+    expected_positions_visited = 36
+    worm = Solver.new(io, sections: 9).solve.worm
+    assert_equal expected_positions_visited, worm.tail_positions_visited
+  end
+
+  def test_largest_example
+    io = StringIO.new <<~STRING
+      R 5
+      U 8
+      L 8
+      D 3
+      R 17
+      D 10
+      L 25
+      U 20
+    STRING
+    expected_positions_visited = 36
+    worm = Solver.new(io, sections: 9).solve.worm
+    assert_equal expected_positions_visited, worm.tail_positions_visited
+  end
+
 end
 
 if ARGV[0] == 'test'
   MiniTest.run
 else
-  puts Solver.new(ARGF).solve.worm.tail_positions_visited
+  worm = Solver.new(ARGF, sections: 9).solve.worm
+  # puts worm.tail_history.inspect
+  puts worm.tail_positions_visited
 end
+
+# it's not 5890, too high
