@@ -9,3 +9,6 @@ gem 'guard-bundler'
 gem 'guard-shell'
 
 gem 'minitest'
+gem 'minitest-focus'
+
+gem 'tty-cursor'
