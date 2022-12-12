@@ -26,11 +26,11 @@ class Test < MiniTest::Test
   end
 
   def test_distance
-    assert_equal 0, Worm.new(hx: 0, hy: 0, tx: 0, ty: 0).distance
-    assert_equal 1, Worm.new(hx: 1, hy: 0, tx: 0, ty: 0).distance
-    assert_equal 1, Worm.new(hx: 0, hy: 1, tx: 0, ty: 0).distance
-    assert_equal 1, Worm.new(hx: 1, hy: 1, tx: 0, ty: 0).distance
-    assert_equal 2, Worm.new(hx: 2, hy: 1, tx: 0, ty: 0).distance
+    assert_equal 0, Worm.new(hx: 0, hy: 0).distance
+    assert_equal 1, Worm.new(hx: 1, hy: 0).distance
+    assert_equal 1, Worm.new(hx: 0, hy: 1).distance
+    assert_equal 1, Worm.new(hx: 1, hy: 1).distance
+    assert_equal 2, Worm.new(hx: 2, hy: 1).distance
   end
 
   def test_example
