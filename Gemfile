@@ -10,5 +10,6 @@ gem 'guard-shell'
 
 gem 'minitest'
 gem 'minitest-focus'
+gem 'pry'
 
 gem 'tty-cursor'

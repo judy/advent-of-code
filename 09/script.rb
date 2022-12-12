@@ -2,6 +2,7 @@
 require 'minitest'
 require 'minitest/focus'
 require 'tty-cursor'
+require 'pry'
 
 CURSOR = TTY::Cursor
 TTYOUTPUT = File.open('/dev/ttys002', 'w+')

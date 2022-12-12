@@ -52,6 +52,7 @@ DEPENDENCIES
   guard-shell
   minitest
   minitest-focus
+  pry
   tty-cursor
 
 BUNDLED WITH
