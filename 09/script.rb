@@ -41,19 +41,19 @@ class Worm
     # print history
     @tail_history.each do |x, ys|
       ys.each do |y|
-        TTYOUTPUT.print CURSOR.move_to(x.to_i+100, y+15)
+        TTYOUTPUT.print CURSOR.move_to(x.to_i+100, -y+15)
         TTYOUTPUT.print '.'
       end
     end
 
     # print sections
     sections.reverse.each_with_index do |section, i|
-      TTYOUTPUT.print CURSOR.move_to(section.x+100, section.y+15)
-      TTYOUTPUT.print i == 0 ? 0 : 10 - i
+      TTYOUTPUT.print CURSOR.move_to(section.x+100, -section.y+15)
+      TTYOUTPUT.print 9 - i
     end
 
     # print head
-    TTYOUTPUT.print CURSOR.move_to(head.x+100, head.y+15)
+    TTYOUTPUT.print CURSOR.move_to(head.x+100, -head.y+15)
     TTYOUTPUT.print 'X'
 
     TTYOUTPUT.print CURSOR.move_to(0, 0)
@@ -70,9 +70,9 @@ class Worm
     when 'L'
       head.x -= 1
     when 'U'
-      head.y -= 1 # MIRRORED! Output should be the same!
+      head.y += 1
     when 'D'
-      head.y += 1 # MIRRORED! Output should be the same!
+      head.y -= 1
     else
       raise "unknown direction #{direction}"
     end
