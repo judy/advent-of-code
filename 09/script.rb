@@ -16,12 +16,23 @@ class Worm
   end
 
   def move(direction)
+    former_head_position = [head.x, head.y]
+
     case direction
-    when 'R' then @head.x += 1
-    when 'L' then @head.x -= 1
-    when 'U' then @head.y += 1
-    when 'D' then @head.y -= 1
-    else raise "unknown direction #{direction}"
+    when 'R'
+      @head.x += 1
+    when 'L'
+      @head.x -= 1
+    when 'U'
+      @head.y += 1
+    when 'D'
+      @head.y -= 1
+    else
+      raise "unknown direction #{direction}"
+    end
+
+    if distance > 1
+      tail.x, tail.y = former_head_position
     end
 
     self
@@ -54,6 +65,20 @@ class Test < MiniTest::Test
   def test_move
     assert_equal 1, Worm.new.move('R').head.x
     assert_equal 0, Worm.new.move('R').head.y
+  end
+
+  def test_move_tail
+    worm = Worm.new
+    worm.move('R')
+    assert_equal [0, 0], [worm.tail.x, worm.tail.y]
+    worm.move('R')
+    assert_equal [1, 0], [worm.tail.x, worm.tail.y]
+  end
+
+  def test_move_tail_diagonal
+    worm = Worm.new(hx: 1, hy: 1)
+    worm.move('R')
+    assert_equal [1, 1], [worm.tail.x, worm.tail.y]
   end
 
   def test_example
