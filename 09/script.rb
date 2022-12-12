@@ -12,7 +12,7 @@ class Worm
   end
 
   def distance
-    [(@head.x - @tail.x).abs, (@head.y - @tail.y).abs].max
+    [(head.x - tail.x).abs, (head.y - tail.y).abs].max
   end
 
   def move(direction)
@@ -20,13 +20,13 @@ class Worm
 
     case direction
     when 'R'
-      @head.x += 1
+      head.x += 1
     when 'L'
-      @head.x -= 1
+      head.x -= 1
     when 'U'
-      @head.y += 1
+      head.y += 1
     when 'D'
-      @head.y -= 1
+      head.y -= 1
     else
       raise "unknown direction #{direction}"
     end
