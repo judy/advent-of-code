@@ -39,7 +39,27 @@ class Worm
   end
 end
 
-class Test < MiniTest::Test
+class Solver
+  attr_accessor :io, :worm
+
+  def initialize(io)
+    @io = io
+    @worm = Worm.new
+  end
+
+  def solve
+    io.each do |line|
+      direction, distance = line.split(' ')
+      distance.to_i.times do
+        worm.move(direction)
+      end
+    end
+
+    self
+  end
+end
+
+class WormTest < MiniTest::Test
   def test_new_worm
     worm = Worm.new
     assert_equal 0, worm.head.x
@@ -73,6 +93,35 @@ class Test < MiniTest::Test
     worm = Worm.new(hx: 1, hy: 1)
     worm.move('R')
     assert_equal [1, 1], [worm.tail.x, worm.tail.y]
+  end
+end
+
+class SolverTest < MiniTest::Test
+  def test_simple_move
+    io = StringIO.new <<~STRING
+      R 2
+      U 2
+    STRING
+    solver = Solver.new(io).solve
+    worm = solver.worm
+    assert_equal [2, 2], [worm.head.x, worm.head.y]
+    assert_equal [2, 1], [worm.tail.x, worm.tail.y]
+  end
+
+  def test_example_position
+    io = StringIO.new <<~STRING
+      R 4
+      U 4
+      L 3
+      D 1
+      R 4
+      D 1
+      L 5
+      R 2
+    STRING
+
+    worm = Solver.new(io).solve.worm
+    assert_equal [1, 2], [worm.tail.x, worm.tail.y]
   end
 
   def test_example
