@@ -2,13 +2,14 @@
 require 'minitest'
 
 class Worm
-  attr_accessor :head, :tail
+  attr_accessor :head, :tail, :tail_history
 
   Position = Struct.new('Position', :x, :y)
 
   def initialize(hx: 0, hy: 0, tx: 0, ty: 0)
     @head = Position.new(hx, hy)
     @tail = Position.new(tx, ty)
+    @tail_history = { 0 => [0] }
   end
 
   def distance
@@ -33,9 +34,15 @@ class Worm
 
     if distance > 1
       tail.x, tail.y = former_head_position
+      @tail_history[tail.x] ||= []
+      @tail_history[tail.x] = @tail_history[tail.x] | [tail.y]
     end
 
     self
+  end
+
+  def tail_positions_visited
+    @tail_history.values.flatten.count
   end
 end
 
@@ -124,6 +131,25 @@ class SolverTest < MiniTest::Test
     assert_equal [1, 2], [worm.tail.x, worm.tail.y]
   end
 
+  def test_tail_history
+    io = StringIO.new <<~STRING
+      R 2
+      U 2
+    STRING
+    worm = Solver.new(io).solve.worm
+    expected = {0=>[0], 1=>[0], 2=>[1]}
+    assert_equal expected, worm.tail_history
+  end
+
+  def test_tail_positions_visited
+    io = StringIO.new <<~STRING
+      R 2
+      U 2
+    STRING
+    worm = Solver.new(io).solve.worm
+    assert_equal 3, worm.tail_positions_visited
+  end
+
   def test_example
     skip
     io = StringIO.new <<~STRING
@@ -137,12 +163,13 @@ class SolverTest < MiniTest::Test
       R 2
     STRING
     expected_positions_visited = 13
+    worm = Solver.new(io).solve.worm
+    assert_equal expected_positions_visited, worm.tail_positions_visited
   end
 end
 
 if ARGV[0] == 'test'
   MiniTest.run
 else
-  raise "unused"
-  # puts Solution.new(ARGF).solve
+  puts Solver.new(ARGF).solve.worm.tail_positions_visited
 end
