@@ -1,5 +1,7 @@
 #!/usr/bin/env ruby
 require 'minitest'
+require 'minitest/focus'
+require 'pry'
 
 # Solution goes here
 
