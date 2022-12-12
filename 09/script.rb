@@ -14,6 +14,18 @@ class Worm
   def distance
     [(@head.x - @tail.x).abs, (@head.y - @tail.y).abs].max
   end
+
+  def move(direction)
+    case direction
+    when 'R' then @head.x += 1
+    when 'L' then @head.x -= 1
+    when 'U' then @head.y += 1
+    when 'D' then @head.y -= 1
+    else raise "unknown direction #{direction}"
+    end
+
+    self
+  end
 end
 
 class Test < MiniTest::Test
@@ -37,6 +49,11 @@ class Test < MiniTest::Test
     assert_equal 1, Worm.new(hx: 0, hy: 1).distance
     assert_equal 1, Worm.new(hx: 1, hy: 1).distance
     assert_equal 2, Worm.new(hx: 2, hy: 1).distance
+  end
+
+  def test_move
+    assert_equal 1, Worm.new.move('R').head.x
+    assert_equal 0, Worm.new.move('R').head.y
   end
 
   def test_example
