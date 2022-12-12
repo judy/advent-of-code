@@ -25,6 +25,12 @@ class Test < MiniTest::Test
     assert_equal 0, worm.tail.y
   end
 
+  def test_start_position
+    worm = Worm.new
+    assert_equal [0, 0], [worm.head.x, worm.head.y]
+    assert_equal [0, 0], [worm.tail.x, worm.tail.y]
+  end
+
   def test_distance
     assert_equal 0, Worm.new(hx: 0, hy: 0).distance
     assert_equal 1, Worm.new(hx: 1, hy: 0).distance
