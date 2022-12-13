@@ -3,35 +3,50 @@ require 'minitest'
 require 'minitest/focus'
 require 'pry'
 
-class MonkeyParser
+require_relative 'monkey'
+require_relative 'parser'
+
+class Solution
+  attr_accessor :monkeys
   def initialize(io)
-    @io = io
+    @monkeys = MonkeyParser.parse_tribe(io)
+  end
+
+  def run_round
+    monkeys.each do |monkey|
+      while monkey.items.count > 0
+        item = monkey.items.shift
+        destination_monkey, new_item = monkey.process_item(item)
+        monkeys[destination_monkey].items << new_item
+      end
+    end
+  end
+
+  def run_rounds(times = 20)
+    times.times { run_round }
+    self
+  end
+
+  def monkey_counts
+    monkeys.map(&:processed_count)
+  end
+
+  def find_solution
+    values = monkey_counts.sort.reverse
+    values[0] * values[1]
   end
 end
 
-class MonkeyParserTest < MiniTest::Test
-  def test_parsing_single_monkey
-    io = StringIO.new <<~STRING
-      Monkey 0:
-        Starting items: 79, 98
-        Operation: new = old * 19
-        Test: divisible by 23
-          If true: throw to monkey 2
-          If false: throw to monkey 3
-    STRING
-    monkey = MonkeyParser.new(io)
-  end
-
+class SolutionTest < MiniTest::Test
   def test_example
-    skip
     io = File.open(__dir__ + '/sample.txt')
-    expected = 10605
+    solution = Solution.new(io).run_rounds
+    assert_equal 10605, solution.find_solution
   end
 end
 
 if ARGV[0] == 'test'
   MiniTest.run
 else
-  raise "unused"
-  # puts Solution.new(ARGF).solve
+  puts Solution.new(ARGF).run_rounds.find_solution
 end

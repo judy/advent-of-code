@@ -86,7 +86,4 @@ end
 
 if ARGV[0] == 'test'
   MiniTest.run
-else
-  raise "unused"
-  # puts Solution.new(ARGF).solve
 end
