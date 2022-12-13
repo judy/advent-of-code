@@ -10,6 +10,8 @@ class Solution
   attr_accessor :monkeys
   def initialize(io)
     @monkeys = MonkeyParser.parse_tribe(io)
+    least_common_multiple = @monkeys.inject(1) { |multiple, monkey| multiple * monkey.divisible_by }
+    @monkeys.each { |m| m.lcm = least_common_multiple }
   end
 
   def run_round
@@ -23,7 +25,13 @@ class Solution
   end
 
   def run_rounds(times = 20)
-    times.times { run_round }
+    puts
+    times.times do |i|
+      run_round
+      print "#{i} "
+    end
+
+    puts "...complete!"
     self
   end
 
@@ -48,5 +56,5 @@ end
 if ARGV[0] == 'test'
   MiniTest.run
 else
-  puts Solution.new(ARGF).run_rounds.find_solution
+  puts Solution.new(ARGF).run_rounds(10_000).find_solution
 end
