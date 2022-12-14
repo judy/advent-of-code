@@ -6,12 +6,25 @@ require 'pry'
 # Solution goes here
 
 class Test < MiniTest::Test
-  def test_example
+  def test_small_example
     skip
     io = StringIO.new <<~STRING
-      # example input goes here
+      Sab
+      gEc
+      fed
     STRING
-    expected = "example output goes here"
+    expected = 8
+  end
+  def test_given_example
+    skip
+    io = StringIO.new <<~STRING
+      Sabqponm
+      abcryxxl
+      accszExk
+      acctuvwj
+      abdefghi
+    STRING
+    expected = 31
   end
 end
 
