@@ -11,5 +11,9 @@ gem 'guard-shell'
 gem 'minitest'
 gem 'minitest-focus'
 gem 'pry'
+gem 'pry-reload'
 
 gem 'tty-cursor'
+
+# for day 12(+?)
+gem 'rgl'
