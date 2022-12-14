@@ -19,24 +19,26 @@ class MazeFinder
         coords = [x, y]
         @start ||= coords if char == 'S'
         @end   ||= coords if char == 'E'
-        value = check_value(char) # takes x and y so we can store start and end
         @maze.add_vertex(coords)
 
         # check left
         next if x == 0 # don't check for left vertex if we're at the left edge
         left_edge_coords = [x - 1, y]
-        left_edge_value = check_value(matrix[left_edge_coords[1]][left_edge_coords[0]])
-        connect = (left_edge_value - value).abs <= 1
-        @maze.add_edge(coords, left_edge_coords) if connect
+        test_and_connect_edge(coords, left_edge_coords)
 
         # check up
         next if y == 0 # don't check for above vertex if we're at the top edge
         above_edge_coords = [x, y - 1]
-        above_edge_value = check_value(matrix[above_edge_coords[1]][above_edge_coords[0]])
-        connect = (above_edge_value - value).abs <= 1
-        @maze.add_edge(coords, above_edge_coords) if connect
+        test_and_connect_edge(coords, above_edge_coords)
       end
     end
+  end
+
+  def test_and_connect_edge(edge1, edge2)
+    edge1_value = check_value(matrix[edge1[1]][edge1[0]]) # takes x and y so we can store start and end
+    edge2_value = check_value(matrix[edge2[1]][edge2[0]])
+    connect = (edge1_value - edge2_value).abs <= 1
+    @maze.add_edge(edge1, edge2) if connect
   end
 
   def matrix
