@@ -26,14 +26,12 @@ class MazeFinder
         if x != 0 # skip left edge
           left_edge_coords = [x - 1, y]
           test_and_connect_edge(coords, left_edge_coords)
-          test_and_connect_edge(left_edge_coords, coords)
         end
 
         # check up
         if y != 0 # skip top edge
           above_edge_coords = [x, y - 1]
           test_and_connect_edge(coords, above_edge_coords)
-          test_and_connect_edge(above_edge_coords, coords)
         end
       end
     end
@@ -99,6 +97,18 @@ class MazeFinderTest < MiniTest::Test
 
     maze_finder = MazeFinder.new(io)
     assert_equal expected, maze_finder.solve(end_vertex: [0, 2])
+  end
+
+  def test_oppposite_level_example
+    io = StringIO.new <<~STRING
+      aaa
+      zza
+      Saa
+    STRING
+    expected = 6
+
+    maze_finder = MazeFinder.new(io)
+    assert_equal expected, maze_finder.solve(end_vertex: [0, 0])
   end
 
   def test_given_example
