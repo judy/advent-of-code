@@ -4,6 +4,7 @@ require 'minitest/focus'
 require 'pry'
 
 require 'rgl/adjacency'
+require 'rgl/dijkstra'
 
 class MazeFinder
   attr_reader :maze
@@ -22,14 +23,18 @@ class MazeFinder
         @maze.add_vertex(coords)
 
         # check left
-        next if x == 0 # don't check for left vertex if we're at the left edge
-        left_edge_coords = [x - 1, y]
-        test_and_connect_edge(coords, left_edge_coords)
+        if x != 0 # skip left edge
+          left_edge_coords = [x - 1, y]
+          test_and_connect_edge(coords, left_edge_coords)
+          test_and_connect_edge(left_edge_coords, coords)
+        end
 
         # check up
-        next if y == 0 # don't check for above vertex if we're at the top edge
-        above_edge_coords = [x, y - 1]
-        test_and_connect_edge(coords, above_edge_coords)
+        if y != 0 # skip top edge
+          above_edge_coords = [x, y - 1]
+          test_and_connect_edge(coords, above_edge_coords)
+          test_and_connect_edge(above_edge_coords, coords)
+        end
       end
     end
   end
@@ -45,15 +50,22 @@ class MazeFinder
     @matrix ||= @io.readlines.map(&:chomp).map(&:chars)
   end
 
-  def solve
-    # 1. Find the start point
-    # 2. Find the end point
-    # 3. Find the shortest path
-    # 4. Return the length of the shortest path
+  def solve(start_vertex: @start, end_vertex: @end)
+    @edge_weights_lambda = lambda { |_| 1 }
+    @shortest_path = @maze.dijkstra_shortest_path(@edge_weights_lambda, start_vertex, end_vertex)
+    @shortest_path.length - 1
+  rescue NoMethodError
+    binding.pry
   end
 
+  # def edge_weights
+  #   @edge_weights = @maze.edges.each_with_object({}) do |edge, hash|
+  #     hash[edge] = 1
+  #   end
+  # end
+
   def check_value(char)
-    value = case char
+    case char
     when 'S'
       'a'.ord
     when 'E'
@@ -61,7 +73,6 @@ class MazeFinder
     else
       char.ord
     end
-    value - 97 # convert 'a' in ascii, which is 97, to 0
   end
 end
 
@@ -70,14 +81,27 @@ class MazeFinderTest < MiniTest::Test
     io = StringIO.new <<~STRING
       Sab
       zzc
-      Eed
+      fed
     STRING
-    maze_finder = MazeFinder.new(io)
     expected = 6
+
+    maze_finder = MazeFinder.new(io)
+    assert_equal expected, maze_finder.solve(end_vertex: [0, 2])
+  end
+
+  def test_level_example
+    io = StringIO.new <<~STRING
+      Saa
+      zza
+      aaa
+    STRING
+    expected = 6
+
+    maze_finder = MazeFinder.new(io)
+    assert_equal expected, maze_finder.solve(end_vertex: [0, 2])
   end
 
   def test_given_example
-    skip
     io = StringIO.new <<~STRING
       Sabqponm
       abcryxxl
@@ -86,12 +110,14 @@ class MazeFinderTest < MiniTest::Test
       abdefghi
     STRING
     expected = 31
+
+    maze_finder = MazeFinder.new(io)
+    assert_equal expected, maze_finder.solve
   end
 end
 
 if ARGV[0] == 'test'
   MiniTest.run
 else
-  # raise "unused"
-  # puts MazeFinder.new(ARGF).solve
+  puts MazeFinder.new(ARGF).solve
 end
