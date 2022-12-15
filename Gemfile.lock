@@ -34,6 +34,8 @@ GEM
       nenv (~> 0.1)
       shellany (~> 0.0)
     pairing_heap (1.0.0)
+    pastel (0.8.0)
+      tty-color (~> 0.5)
     pry (0.14.1)
       coderay (~> 1.1)
       method_source (~> 1.0)
@@ -50,6 +52,7 @@ GEM
     shellany (0.0.1)
     stream (0.5.5)
     thor (1.2.1)
+    tty-color (0.6.0)
     tty-cursor (0.7.1)
 
 PLATFORMS
@@ -61,6 +64,7 @@ DEPENDENCIES
   guard-shell
   minitest
   minitest-focus
+  pastel
   pry
   pry-reload
   rgl

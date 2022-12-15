@@ -2,6 +2,7 @@
 require 'minitest'
 require 'minitest/focus'
 require 'pry'
+require 'pastel'
 
 require 'rgl/adjacency'
 require 'rgl/dijkstra'
@@ -10,7 +11,7 @@ class MazeFinder
   attr_reader :maze
   def initialize(io)
     @io = io
-    @maze = RGL::AdjacencyGraph.new
+    @maze = RGL::DirectedAdjacencyGraph.new
     convert_to_maze
   end
 
@@ -37,11 +38,32 @@ class MazeFinder
     end
   end
 
+  def find_scenic_route
+    best_starting_point = [nil, nil]
+    least_steps = Float::INFINITY
+    matrix.each_with_index do |line, y|
+      line.each_with_index do |char, x|
+        next unless char == 'a'
+
+        steps = solve(start_vertex: [x, y], end_vertex: @end)
+        if steps < least_steps
+          least_steps = steps
+          best_starting_point = [x, y]
+        end
+      end
+    end
+    puts
+    puts "Best route: #{best_starting_point}"
+    puts "Least steps: #{least_steps}"
+    solve(start_vertex: best_starting_point, end_vertex: @end)
+    visualize
+  end
+
   def test_and_connect_edge(edge1, edge2)
     edge1_value = check_value(matrix[edge1[1]][edge1[0]]) # takes x and y so we can store start and end
     edge2_value = check_value(matrix[edge2[1]][edge2[0]])
-    connect = (edge1_value - edge2_value).abs <= 1
-    @maze.add_edge(edge1, edge2) if connect
+    @maze.add_edge(edge2, edge1) if (edge1_value - edge2_value) <= 1
+    @maze.add_edge(edge1, edge2) if (edge2_value - edge1_value) <= 1
   end
 
   def matrix
@@ -51,16 +73,18 @@ class MazeFinder
   def solve(start_vertex: @start, end_vertex: @end)
     @edge_weights_lambda = lambda { |_| 1 }
     @shortest_path = @maze.dijkstra_shortest_path(@edge_weights_lambda, start_vertex, end_vertex)
-    @shortest_path.length - 1
-  rescue NoMethodError
-    binding.pry
+    @shortest_path.nil? ? Float::INFINITY : @shortest_path.length - 1
   end
 
-  # def edge_weights
-  #   @edge_weights = @maze.edges.each_with_object({}) do |edge, hash|
-  #     hash[edge] = 1
-  #   end
-  # end
+  def visualize
+    @pastel = Pastel.new
+    matrix.each_with_index do |line, y|
+      line.each_with_index do |char, x|
+        print @shortest_path.include?([x, y]) ? @pastel.green(char) : char
+      end
+      print "\n"
+    end
+  end
 
   def check_value(char)
     case char
@@ -129,5 +153,8 @@ end
 if ARGV[0] == 'test'
   MiniTest.run
 else
-  puts MazeFinder.new(ARGF).solve
+  mf = MazeFinder.new(ARGF)
+  puts mf.solve
+  mf.visualize
+  mf.find_scenic_route
 end

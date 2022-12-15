@@ -14,6 +14,7 @@ gem 'pry'
 gem 'pry-reload'
 
 gem 'tty-cursor'
+gem 'pastel'
 
 # for day 12(+?)
 gem 'rgl'
