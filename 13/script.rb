@@ -57,6 +57,7 @@ class Solution
       @orders << (pair[0] <=> pair[1])
     end
     @orders.each_with_index do |order, i|
+      puts "#{pairs[i][0]} <=> #{pairs[i][1]} = #{order}"
       i += 1
       @indice_sum += i if order == -1
     end
@@ -85,3 +86,5 @@ if ARGV[0] == 'test'
 else
   puts Solution.new(ARGF).solve.orders.join(' ')
 end
+
+# 5996
