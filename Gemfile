@@ -12,6 +12,7 @@ gem 'minitest'
 gem 'minitest-focus'
 gem 'pry'
 gem 'pry-reload'
+gem 'pry-byebug'
 
 gem 'tty-cursor'
 gem 'pastel'
