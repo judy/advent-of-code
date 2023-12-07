@@ -5,6 +5,28 @@ require 'pry'
 require 'pry-byebug'
 
 class Solution
+  NUMBER_TO_INT = {
+    '0' => 0,
+    '1' => 1,
+    '2' => 2,
+    '3' => 3,
+    '4' => 4,
+    '5' => 5,
+    '6' => 6,
+    '7' => 7,
+    '8' => 8,
+    '9' => 9,
+    'one' => 1,
+    'two' => 2,
+    'three' => 3,
+    'four' => 4,
+    'five' => 5,
+    'six' => 6,
+    'seven' => 7,
+    'eight' => 8,
+    'nine' => 9
+  }
+
   attr_reader :io
   def initialize(io)
     @io = io
@@ -13,9 +35,10 @@ class Solution
   def solve
     io.readlines.map do |line|
       line = line.chomp
-      digits = line.scan(/\d/)
-      first_num = digits.first.to_i
-      second_num = digits.last.to_i
+      digits = line.scan(/(?=(\d|one|two|three|four|five|six|seven|eight|nine))/).flatten
+      first_num = NUMBER_TO_INT[digits.first]
+      second_num = NUMBER_TO_INT[digits.last]
+      # puts "#{digits.first}: #{first_num}, #{digits.last}: #{second_num}, = #{(first_num * 10) + second_num}"
       (first_num * 10) + second_num
     end.sum
   end
@@ -41,6 +64,32 @@ class SolutionTest < MiniTest::Test
     EOS
     solution = Solution.new(input).solve
     expected = 142 # TODO: put example here!
+    assert_equal expected, solution
+  end
+
+  def test_line_two
+    # io = File.open(__dir__ + '/sample.txt')
+    input = StringIO.new <<~EOS
+      1abconeight
+    EOS
+    solution = Solution.new(input).solve
+    expected = 18 # TODO: put example here!
+    assert_equal expected, solution
+  end
+
+  def test_example_two
+    # io = File.open(__dir__ + '/sample.txt')
+    input = StringIO.new <<~EOS
+      two1nine
+      eightwothree
+      abcone2threexyz
+      xtwone3four
+      4nineeightseven2
+      zoneight234
+      7pqrstsixteen
+    EOS
+    solution = Solution.new(input).solve
+    expected = 281 # TODO: put example here!
     assert_equal expected, solution
   end
 end
