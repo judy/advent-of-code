@@ -11,10 +11,11 @@ class Solution
   end
 
   def solve
-    io.split("\n").map do |line|
+    io.readlines.map do |line|
       line = line.chomp
-      first_num = line.scan(/\d+/).first.to_i
-      second_num = line.reverse.scan(/\d+/).first.to_i
+      digits = line.scan(/\d/)
+      first_num = digits.first.to_i
+      second_num = digits.last.to_i
       (first_num * 10) + second_num
     end.sum
   end
@@ -23,7 +24,7 @@ end
 class SolutionTest < MiniTest::Test
   def test_line
     # io = File.open(__dir__ + '/sample.txt')
-    input = <<~EOS
+    input = StringIO.new <<~EOS
       1abc2
     EOS
     solution = Solution.new(input).solve
@@ -32,7 +33,7 @@ class SolutionTest < MiniTest::Test
   end
   def test_example
     # io = File.open(__dir__ + '/sample.txt')
-    input = <<~EOS
+    input = StringIO.new <<~EOS
       1abc2
       pqr3stu8vwx
       a1b2c3d4e5f
@@ -47,5 +48,6 @@ end
 if ARGV[0] == 'test'
   MiniTest.run
 else
-  puts Solution.new(ARGF).solve
+  io = File.open(__dir__ + '/data.txt')
+  puts Solution.new(io).solve
 end
