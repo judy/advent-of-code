@@ -21,33 +21,36 @@ class Solution
         next
       end
 
-      direction = numbers[0] < numbers[1] ? :increasing : :decreasing
-      report = :safe
-
-      # Ensure that the numbers are only increasing or decreasing, by checking the difference between each number
-      numbers = numbers.to_enum
-      begin
-        while true
-          a = numbers.next
-          b = numbers.peek
-          difference = a - b
-          if direction == :decreasing && difference >= 1 && difference <= 3
-            next
-          elsif direction == :increasing && difference <= -1 && difference >= -3
-            next
-          else
-            report = :unsafe
-            break
-          end
-        end
-      rescue StopIteration
-        # We made it to the end of the numbers, so it's safe
-        safe_reports += 1 if report == :safe
-      end
-
+      check_report(numbers) ? safe_reports += 1 : next
     end
 
     safe_reports
+  end
+
+  def check_report(numbers)
+    direction = numbers[0] < numbers[1] ? :increasing : :decreasing
+    report = :safe
+
+    # Ensure that the numbers are only increasing or decreasing, by checking the difference between each number
+    enum = numbers.to_enum
+    begin
+      while true
+        a = enum.next
+        b = enum.peek
+        difference = a - b
+        if direction == :decreasing && difference >= 1 && difference <= 3
+          next
+        elsif direction == :increasing && difference <= -1 && difference >= -3
+          next
+        else
+          report = :unsafe
+          break
+        end
+      end
+    rescue StopIteration
+      # We made it to the end of the numbers, so it's safe
+      return true if report == :safe
+    end
   end
 end
 
