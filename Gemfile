@@ -2,9 +2,7 @@
 
 source "https://rubygems.org"
 
-# gem "rails"
-
-gem "guard", "~> 2.18"
+gem "guard"
 gem 'guard-bundler'
 gem 'guard-shell'
 
