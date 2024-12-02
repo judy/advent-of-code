@@ -15,7 +15,7 @@ class Solution
   end
 end
 
-class SolutionTest < MiniTest::Test
+class SolutionTest < Minitest::Test
   def test_example
     io = File.open(__dir__ + '/sample.txt')
     solution = Solution.new(io).solve
@@ -25,7 +25,7 @@ class SolutionTest < MiniTest::Test
 end
 
 if ARGV[0] == 'test'
-  MiniTest.run
+  Minitest.run
 else
   puts Solution.new(ARGF).solve
 end
