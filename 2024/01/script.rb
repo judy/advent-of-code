@@ -11,7 +11,21 @@ class Solution
   end
 
   def solve
-    # TODO: solve here!
+    # Convert file to nested array
+    arrays = @io.each_line.map do |line|
+      line.split.map(&:to_i)
+    end
+
+    # Transpose and sort each array
+    array_1, array_2 = arrays.transpose.map(&:sort)
+
+    # Iterate through each array and compare, adding up total distance
+    distance = 0
+    array_1.each_with_index do |num, index|
+      distance += (num - array_2[index]).abs
+    end
+
+    distance
   end
 end
 
