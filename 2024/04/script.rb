@@ -79,29 +79,18 @@ class Solution
 
   def look_for_x_mas_at_position(x, y)
     return 0 unless map.at(x, y) == 'A'
-    xmas_count = 0
 
-    # up and down
-    if    (map.at(x - 1, y) == 'M' && map.at(x + 1, y) == 'S') ||
-          (map.at(x - 1, y) == 'S' && map.at(x + 1, y) == 'M')
-       # check left and right
-       if (map.at(x, y - 1) == 'M' && map.at(x, y + 1) == 'S') ||
-          (map.at(x, y - 1) == 'S' && map.at(x, y + 1) == 'M')
-         xmas_count += 1
-       end
-    end
-
-    # diagonal top-left and bottom-right
+    # if diagonal top-left and bottom-right
     if    (map.at(x - 1, y - 1) == 'M' && map.at(x + 1, y + 1) == 'S') ||
           (map.at(x - 1, y - 1) == 'S' && map.at(x + 1, y + 1) == 'M')
        # check diagonal top-right and bottom-left
        if (map.at(x + 1, y - 1) == 'M' && map.at(x - 1, y + 1) == 'S') ||
           (map.at(x + 1, y - 1) == 'S' && map.at(x - 1, y + 1) == 'M')
-         xmas_count += 1
+         return 1
        end
     end
 
-    xmas_count
+    return 0
   end
 end
 
