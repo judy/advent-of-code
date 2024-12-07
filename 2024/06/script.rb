@@ -69,9 +69,10 @@ class Solution
 
   def move_guard
     if guard.direction == :up
-      if map.at(guard.x, guard.y - 1) == '🛢️'
+      square_ahead = map.at(guard.x, guard.y - 1)
+      if square_ahead == '🛢️'
         guard.direction = :right
-      elsif map.at(guard.x, guard.y - 1).nil?
+      elsif square_ahead.nil?
         guard.on_map = false
         return
       else
@@ -83,9 +84,10 @@ class Solution
     end
 
     if guard.direction == :right
-      if map.at(guard.x + 1, guard.y) == '🛢️'
+      square_ahead = map.at(guard.x + 1, guard.y)
+      if square_ahead == '🛢️'
         guard.direction = :down
-      elsif map.at(guard.x + 1, guard.y).nil?
+      elsif square_ahead.nil?
         guard.on_map = false
         return
       else
@@ -97,9 +99,10 @@ class Solution
     end
 
     if guard.direction == :down
-      if map.at(guard.x, guard.y + 1) == '🛢️'
+      square_ahead = map.at(guard.x, guard.y + 1)
+      if square_ahead == '🛢️'
         guard.direction = :left
-      elsif map.at(guard.x, guard.y + 1).nil?
+      elsif square_ahead.nil?
         guard.on_map = false
         return
       else
@@ -111,9 +114,10 @@ class Solution
     end
 
     if guard.direction == :left
-      if map.at(guard.x - 1, guard.y) == '🛢️'
+      square_ahead = map.at(guard.x - 1, guard.y)
+      if square_ahead == '🛢️'
         guard.direction = :up
-      elsif map.at(guard.x - 1, guard.y).nil?
+      elsif square_ahead.nil?
         guard.on_map = false
         return
       else
