@@ -73,6 +73,7 @@ class Solution
       if square_ahead == '🛢️'
         guard.direction = :right
       elsif square_ahead.nil?
+        map.set(guard.x, guard.y, '↕️')
         guard.on_map = false
         return
       else
@@ -88,6 +89,7 @@ class Solution
       if square_ahead == '🛢️'
         guard.direction = :down
       elsif square_ahead.nil?
+        map.set(guard.x, guard.y, '↔️')
         guard.on_map = false
         return
       else
@@ -103,6 +105,7 @@ class Solution
       if square_ahead == '🛢️'
         guard.direction = :left
       elsif square_ahead.nil?
+        map.set(guard.x, guard.y, '↕️')
         guard.on_map = false
         return
       else
@@ -118,6 +121,7 @@ class Solution
       if square_ahead == '🛢️'
         guard.direction = :up
       elsif square_ahead.nil?
+        map.set(guard.x, guard.y, '↔️')
         guard.on_map = false
         return
       else
@@ -145,7 +149,7 @@ class Solution
 
   def count_path_squares
     # add one at the end for going off screen :p
-    map.inject(0) {|sum, row| row.count{ |x| x.match?(/↔️|↕️/)} + sum} + 1
+    map.inject(0) {|sum, row| row.count{ |x| x.match?(/↔️|↕️/)} + sum}
   end
 
   def set_guard
