@@ -46,14 +46,14 @@ class Solution
   attr_reader :io, :map, :guard, :cursor, :timeout
   def initialize(io)
     @io = io
-    @map = Map.new(io.each_line.map(&:chomp).map(&:chars))
+    @map = Map.new(io.each_line.map { |line| line.chomp.gsub('.', '➖').gsub('#', '🛢️').gsub('^', '⬆️') }.map(&:grapheme_clusters ))
     @cursor = TTY::Cursor
     @timeout = 0
+    @guard = set_guard
   end
 
   def solve
     print cursor.clear_screen_down
-    @guard = set_guard
 
     while guard.on_map
       @timeout += 1
@@ -69,57 +69,57 @@ class Solution
 
   def move_guard
     if guard.direction == :up
-      if map.at(guard.x, guard.y - 1) == '#'
+      if map.at(guard.x, guard.y - 1) == '🛢️'
         guard.direction = :right
       elsif map.at(guard.x, guard.y - 1).nil?
         guard.on_map = false
         return
       else
-        map.set(guard.x, guard.y, 'X')
+        map.set(guard.x, guard.y, '↕️')
         guard.y -= 1
-        map.set(guard.x, guard.y, '^')
+        map.set(guard.x, guard.y, '⬆️')
         return
       end
     end
 
     if guard.direction == :right
-      if map.at(guard.x + 1, guard.y) == '#'
+      if map.at(guard.x + 1, guard.y) == '🛢️'
         guard.direction = :down
       elsif map.at(guard.x + 1, guard.y).nil?
         guard.on_map = false
         return
       else
-        map.set(guard.x, guard.y, 'X')
+        map.set(guard.x, guard.y, '↔️')
         guard.x += 1
-        map.set(guard.x, guard.y, '>')
+        map.set(guard.x, guard.y, '➡️')
         return
       end
     end
 
     if guard.direction == :down
-      if map.at(guard.x, guard.y + 1) == '#'
+      if map.at(guard.x, guard.y + 1) == '🛢️'
         guard.direction = :left
       elsif map.at(guard.x, guard.y + 1).nil?
         guard.on_map = false
         return
       else
-        map.set(guard.x, guard.y, 'X')
+        map.set(guard.x, guard.y, '↕️')
         guard.y += 1
-        map.set(guard.x, guard.y, 'V')
+        map.set(guard.x, guard.y, '⬇️')
         return
       end
     end
 
     if guard.direction == :left
-      if map.at(guard.x - 1, guard.y) == '#'
+      if map.at(guard.x - 1, guard.y) == '🛢️'
         guard.direction = :up
       elsif map.at(guard.x - 1, guard.y).nil?
         guard.on_map = false
         return
       else
-        map.set(guard.x, guard.y, 'X')
+        map.set(guard.x, guard.y, '↔️')
         guard.x -= 1
-        map.set(guard.x, guard.y, '<')
+        map.set(guard.x, guard.y, '⬅️')
         return
       end
     end
@@ -129,15 +129,10 @@ class Solution
     print cursor.save
     print cursor.down(4)
     puts "Guard: #{sprintf("%3d", guard.x)}, #{sprintf("%3d", guard.y)} - Timeout: #{sprintf("%9d", timeout)}"
-    (guard.y-25..guard.y+25).each do |y|
-      (guard.x-25..guard.x+25).each do |x|
+    (guard.y-15..guard.y+15).each do |y|
+      (guard.x-15..guard.x+15).each do |x|
         char = map.at(x, y)
-        if char.nil? || char == '.'
-          print '  '
-        else
-          print char
-          print ' '
-        end
+        print char.nil? ? '❌' : char
       end
       puts
     end
@@ -146,17 +141,18 @@ class Solution
 
   def count_path_squares
     # add one at the end for going off screen :p
-    map.inject(0) {|sum, row| row.count('X') + sum} + 1
+    map.inject(0) {|sum, row| row.count{ |x| x.match?(/↔️|↕️/)} + sum} + 1
   end
 
   def set_guard
     map.each_with_index do |row, y|
       row.each_with_index do |char, x|
-        if char == '^'
+        if char == '⬆️'
           return Guard.new(x, y, :up, true)
         end
       end
     end
+    raise 'Guard not found'
   end
 end
 
