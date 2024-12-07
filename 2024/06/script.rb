@@ -59,7 +59,7 @@ class Solution
       @timeout += 1
       draw_map
       move_guard
-      guard.on_map = false if timeout > 100_000_000 # TODO: Remove this sanity check
+      guard.on_map = false if timeout > 100_000_000
     end
 
     count_squares = count_path_squares
@@ -128,9 +128,18 @@ class Solution
   def draw_map
     print cursor.save
     print cursor.down(4)
-    puts "Guard: #{sprintf("%3d", guard.x)}, #{sprintf("%3d", guard.y)}  Timeout: #{sprintf("%6d", timeout)}"
-    map.each do |row|
-      puts row.join
+    puts "Guard: #{sprintf("%3d", guard.x)}, #{sprintf("%3d", guard.y)} - Timeout: #{sprintf("%9d", timeout)}"
+    (guard.y-25..guard.y+25).each do |y|
+      (guard.x-25..guard.x+25).each do |x|
+        char = map.at(x, y)
+        if char.nil? || char == '.'
+          print '  '
+        else
+          print char
+          print ' '
+        end
+      end
+      puts
     end
     print cursor.restore
   end
