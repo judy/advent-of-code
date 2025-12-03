@@ -15,11 +15,13 @@ class Solution
     numbers_to_scan = []
     sets = input.split(',')
     puts "Found #{sets.length} sets"
+
     sets.each do |set|
       range = set.split('-').map(&:to_i)
       numbers_to_scan.concat((range[0]..range[1]).to_a)
     end
     puts "Scanning #{numbers_to_scan.length} numbers"
+
     filtered = numbers_to_scan.select { |n| check_number(n) }
     filtered.sum
   end
@@ -30,7 +32,8 @@ class Solution
     max_size = n.length / 2
     (1..max_size).each do |size|
       pattern = n[0, size]
-      return true if n == pattern * 2
+      repeated = pattern * (n.length / size)
+      return true if n == repeated
     end
     return false
   end
@@ -40,7 +43,7 @@ class SolutionTest < Minitest::Test
   def test_example
     io = File.open(__dir__ + '/sample.txt')
     solution = Solution.new(io).solve
-    expected = 1227775554
+    expected = 4174379265
     assert_equal expected, solution
   end
 
@@ -57,7 +60,7 @@ class SolutionTest < Minitest::Test
     assert_equal false, solution.check_number(1698522), "1698522 was incorrect"
     assert_equal false, solution.check_number(1698528), "1698528 was incorrect"
     assert_equal true, solution.check_number(38593859), "38593859 was incorrect"
-    assert_equal false, solution.check_number(565656), "565656 was incorrect" # only repeated twice
+    assert_equal true, solution.check_number(565656), "565656 was incorrect" # only repeated twice for gold star 1
   end
 end
 
