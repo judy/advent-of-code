@@ -7,6 +7,7 @@ require 'pry-byebug'
 class Grid
   include Enumerable
 
+  # NOTE: Assumes every line is the same length
   def initialize(io)
     @grid = io.each_line.map.with_index do |line, y|
       line.chomp.chars.map.with_index do |char, x|
@@ -30,6 +31,13 @@ class Grid
   end
 
   def get(x, y)
+    if y < 0 ||
+       y >= @grid.size ||
+       x < 0 ||
+       x >= @grid[0].size
+      return { char: nil, x:, y: }
+    end
+
     @grid[y][x]
   end
 
@@ -64,6 +72,15 @@ class GridTest < Minitest::Test
     assert_equal "@", cell[:char]
     assert_equal 1, cell[:x]
     assert_equal 1, cell[:y]
+  end
+
+  def test_get_out_of_bounds
+    io = File.open(__dir__ + '/sample.txt')
+    grid = Grid.new(io)
+    assert_nil grid.get(-1, 0)[:char]
+    assert_nil grid.get(0, -1)[:char]
+    assert_nil grid.get(0, 10)[:char]
+    assert_nil grid.get(10, 10)[:char]
   end
 
   def test_char
