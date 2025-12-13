@@ -23,6 +23,8 @@ class Grid
   end
 
   def each
+    return to_enum(:each) unless block_given?
+
     @grid.each do |row|
       row.each do |cell|
         yield cell
