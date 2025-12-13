@@ -12,24 +12,41 @@ class Solution
     @grid = Grid.new(io)
   end
 
-  def solve
+  def solve_star_one
+    find_and_mark_clearable_cells!
+    grid.count { |cell| cell[:clearable] }
+  end
+
+  def solve_star_two
+    find_and_mark_clearable_cells!
+    grid.count { |cell| cell[:clearable] }
+  end
+
+  private
+
+  def find_and_mark_clearable_cells!
     grid.each do |cell|
       # cell is clearable if it is '@' and has fewer than 4 neighboring '@'
       cell[:clearable] =
         cell[:char] == "@" &&
         grid.neighbors(cell[:x], cell[:y]).count { |n| n[:char] == '@' } < 4
     end
-
-    grid.count { |cell| cell[:clearable] }
   end
 end
 
 
 class SolutionTest < Minitest::Test
-  def test_example
+  def test_solve_star_one
     io = File.open(__dir__ + '/sample.txt')
-    solution = Solution.new(io).solve
+    solution = Solution.new(io).solve_star_one
     expected = 13
+    assert_equal expected, solution
+  end
+
+  def test_solve_star_two
+    io = File.open(__dir__ + '/sample.txt')
+    solution = Solution.new(io).solve_star_two
+    expected = 43
     assert_equal expected, solution
   end
 end
