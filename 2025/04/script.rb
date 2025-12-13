@@ -4,12 +4,19 @@ require 'minitest/focus'
 require 'pry'
 require 'pry-byebug'
 require_relative '../../shared/grid.rb'
+require 'tty-cursor'
+
+CURSOR = TTY::Cursor
+TTYOUTPUT = File.open('/dev/ttys003', 'w+')
+TTYOUTPUT.print CURSOR.clear_screen
 
 class Solution
-  attr_reader :io, :grid
+  attr_reader :io, :grid, :solution
+
   def initialize(io)
     @io = io
     @grid = Grid.new(io)
+    @solution = 0
   end
 
   def solve_star_one
@@ -18,11 +25,33 @@ class Solution
   end
 
   def solve_star_two
-    find_and_mark_clearable_cells!
-    grid.count { |cell| cell[:clearable] }
+    @solution = 0
+    sleep(0.75) # gimme a second to see the TTY output
+    draw
+
+    while true
+      find_and_mark_clearable_cells!
+      current_count = grid.count { |cell| cell[:clearable] }
+      break if current_count.zero?
+      @solution += current_count
+      draw
+      clear_the_clearable_cells!
+      draw
+    end
+
+    @solution
   end
 
   private
+
+  def draw
+    sleep(0.05)
+    # TTYOUTPUT.print CURSOR.clear_screen_up
+    TTYOUTPUT.print CURSOR.move_to(0, 0)
+    TTYOUTPUT.puts grid.draw
+    TTYOUTPUT.puts
+    TTYOUTPUT.puts "Cleared so far: #{@solution}"
+  end
 
   def find_and_mark_clearable_cells!
     grid.each do |cell|
@@ -30,6 +59,15 @@ class Solution
       cell[:clearable] =
         cell[:char] == "@" &&
         grid.neighbors(cell[:x], cell[:y]).count { |n| n[:char] == '@' } < 4
+    end
+  end
+
+  def clear_the_clearable_cells!
+    grid.each do |cell|
+      if cell[:clearable]
+        cell[:char] = '.'
+        cell.delete(:clearable)
+      end
     end
   end
 end
@@ -54,5 +92,5 @@ end
 if ARGV[0] == 'test'
   Minitest.run
 else
-  puts Solution.new(ARGF).solve
+  puts Solution.new(ARGF).solve_star_two
 end

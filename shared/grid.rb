@@ -3,6 +3,7 @@ require 'minitest'
 require 'minitest/focus'
 require 'pry'
 require 'pry-byebug'
+require 'pastel'
 
 class Grid
   include Enumerable
@@ -19,6 +20,20 @@ class Grid
   def to_s
     @grid.map do |row|
       row.map { |cell| cell[:char] }.join
+    end.join("\n")
+  end
+
+  # Like to_s, but adds color to certain cells for debugging
+  def draw
+    pastel = Pastel.new
+    @grid.map do |row|
+      row.map do |cell|
+        if cell[:clearable]
+          pastel.red(cell[:char])
+        else
+          cell[:char]
+        end
+      end.join
     end.join("\n")
   end
 
