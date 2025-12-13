@@ -41,6 +41,20 @@ class Grid
     @grid[y][x]
   end
 
+  def neighbors(x, y)
+    [
+        get(x - 1, y - 1), # top-left
+        get(x,     y - 1), # top
+        get(x + 1, y - 1), # top-right
+        get(x - 1, y    ), # left
+      # get(x    , y    ), # center, not a neighbor
+        get(x + 1, y    ), # right
+        get(x - 1, y + 1), # bottom-left
+        get(x,     y + 1), # bottom
+        get(x + 1, y + 1) # bottom-right
+    ]
+  end
+
   def char(x, y)
     get(x, y)[:char]
   end
@@ -87,6 +101,19 @@ class GridTest < Minitest::Test
     io = File.open(__dir__ + '/sample.txt')
     grid = Grid.new(io)
     assert_equal "@", grid.char(1, 1)
+  end
+
+  def test_neighbors
+    io = File.open(__dir__ + '/sample.txt')
+    grid = Grid.new(io)
+    neighbors = grid.neighbors(1, 1)
+    neighbor_chars = neighbors.map { |cell| cell[:char] }
+    expected_chars = [
+      ".", ".", "@",
+      "@",      "@",
+      "@", "@", "@"
+    ]
+    assert_equal expected_chars, neighbor_chars
   end
 end
 
