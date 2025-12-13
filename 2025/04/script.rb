@@ -29,8 +29,12 @@ class Grid
     end
   end
 
+  def get(x, y)
+    @grid[y][x]
+  end
+
   def char(x, y)
-    @grid[y][x][:char]
+    get(x, y)[:char]
   end
 end
 
@@ -51,6 +55,15 @@ class GridTest < Minitest::Test
     io = File.open(__dir__ + '/sample.txt')
     grid = Grid.new(io)
     assert_equal 100, grid.count
+  end
+
+  def test_get
+    io = File.open(__dir__ + '/sample.txt')
+    grid = Grid.new(io)
+    cell = grid.get(1, 1)
+    assert_equal "@", cell[:char]
+    assert_equal 1, cell[:x]
+    assert_equal 1, cell[:y]
   end
 
   def test_char
