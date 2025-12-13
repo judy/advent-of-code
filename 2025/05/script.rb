@@ -26,7 +26,9 @@ class Solution
   end
 
   def solve
-    0
+    ingredients.sum do |ingredient|
+      ranges.any? { |range| ingredient >= range[0] && ingredient <= range[1] } ? 1 : 0
+    end
   end
 end
 
