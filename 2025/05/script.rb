@@ -22,7 +22,22 @@ class Solution
   end
 
   def solve_star_two
-
+    @consolidated_ranges = @ranges.dup
+    @consolidated_ranges.reduce([]) do |consolidated_ranges, range|
+      puts "Consolidated ranges currently: #{@consolidated_ranges.inspect}"
+      puts "Checking range #{range}"
+      overlapping_ranges = @consolidated_ranges.select{_1.overlap?(range) }
+      if overlapping_ranges.count > 1 # range overlaps with more than itself
+        puts "#{range} overlaps with #{overlapping_ranges.inspect}"
+        new_range = overlapping_ranges.reduce(range) do |acc, r|
+          Range.new([acc.min, r.min].min, [acc.max, r.max].max)
+        end
+        puts "  consolidated to #{new_range}"
+        @consolidated_ranges.delete_if { |r| overlapping_ranges.include?(r) }
+        @consolidated_ranges.unshift(new_range)
+      end
+    end
+    @consolidated_ranges.sum(&:count)
   end
 end
 
