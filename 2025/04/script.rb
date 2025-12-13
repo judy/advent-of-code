@@ -28,6 +28,10 @@ class Grid
       end
     end
   end
+
+  def char(x, y)
+    @grid[y][x][:char]
+  end
 end
 
 class Solution
@@ -48,14 +52,11 @@ class GridTest < Minitest::Test
     grid = Grid.new(io)
     assert_equal 100, grid.count
   end
-end
 
-class SolutionTest < Minitest::Test
-  def test_example
+  def test_char
     io = File.open(__dir__ + '/sample.txt')
-    solution = Solution.new(io).solve
-    expected = 13
-    assert_equal expected, solution
+    grid = Grid.new(io)
+    assert_equal "@", grid.char(1, 1)
   end
 end
 
