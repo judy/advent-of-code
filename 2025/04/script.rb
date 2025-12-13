@@ -73,15 +73,18 @@ class Solution
 end
 
 class GridTest < Minitest::Test
+  attr_reader :io, :grid
+
+  def setup
+    @io = File.open(__dir__ + '/sample.txt')
+    @grid = Grid.new(@io)
+  end
+
   def test_count
-    io = File.open(__dir__ + '/sample.txt')
-    grid = Grid.new(io)
     assert_equal 100, grid.count
   end
 
   def test_get
-    io = File.open(__dir__ + '/sample.txt')
-    grid = Grid.new(io)
     cell = grid.get(1, 1)
     assert_equal "@", cell[:char]
     assert_equal 1, cell[:x]
@@ -89,8 +92,6 @@ class GridTest < Minitest::Test
   end
 
   def test_get_out_of_bounds
-    io = File.open(__dir__ + '/sample.txt')
-    grid = Grid.new(io)
     assert_nil grid.get(-1, 0)[:char]
     assert_nil grid.get(0, -1)[:char]
     assert_nil grid.get(0, 10)[:char]
@@ -98,14 +99,10 @@ class GridTest < Minitest::Test
   end
 
   def test_char
-    io = File.open(__dir__ + '/sample.txt')
-    grid = Grid.new(io)
     assert_equal "@", grid.char(1, 1)
   end
 
   def test_neighbors
-    io = File.open(__dir__ + '/sample.txt')
-    grid = Grid.new(io)
     neighbors = grid.neighbors(1, 1)
     neighbor_chars = neighbors.map { |cell| cell[:char] }
     expected_chars = [
