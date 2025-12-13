@@ -59,6 +59,15 @@ class SolutionTest < Minitest::Test
   end
 end
 
+class SolutionTest < Minitest::Test
+  # def test_example
+  #   io = File.open(__dir__ + '/sample.txt')
+  #   solution = Solution.new(io).solve
+  #   expected = 13
+  #   assert_equal expected, solution
+  # end
+end
+
 if ARGV[0] == 'test'
   Minitest.run
 else
