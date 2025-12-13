@@ -103,14 +103,36 @@ class GridTest < Minitest::Test
   end
 
   def test_neighbors
-    neighbors = grid.neighbors(1, 1)
-    neighbor_chars = neighbors.map { |cell| cell[:char] }
     expected_chars = [
       ".", ".", "@",
       "@",      "@",
       "@", "@", "@"
     ]
-    assert_equal expected_chars, neighbor_chars
+    assert_equal expected_chars, get_neighbor_chars(1, 1)
+  end
+
+  def test_neighbors_oob_top_left
+    expected_chars = [
+      nil, nil, nil,
+      nil,      ".",
+      nil, "@", "@"
+    ]
+    assert_equal expected_chars, get_neighbor_chars(0, 0)
+  end
+
+  def test_neighbors_oob_bottom_right
+    expected_chars = [
+      "@", ".", nil,
+      "@",      nil,
+      nil, nil, nil
+    ]
+    assert_equal expected_chars, get_neighbor_chars(9, 9)
+  end
+
+  private
+
+  def get_neighbor_chars(x, y)
+    grid.neighbors(x, y).map { |cell| cell[:char] }
   end
 end
 
